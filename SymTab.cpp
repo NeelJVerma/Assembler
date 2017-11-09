@@ -13,22 +13,22 @@
 #include "stdafx.h"
 #include "SymTab.h"
 
- /** SymbolTable::SymbolTable()
-  *  SymbolTable::SymbolTable()
-  *
-  *  NAME
-  *    SymbolTable::SymbolTable
-  *
-  *  SYNOPSIS
-  *    SymbolTable::SymbolTable();
-  *
-  *  DESCRIPTION
-  *    This function, which is the constructor for the symbol table class,
-  *    initializes the symbol table with a size of 0.
-  * 
-  *  RETURNS
-  *    ((none))
-  */
+/** SymbolTable::SymbolTable()
+ *  SymbolTable::SymbolTable()
+ *
+ *  NAME
+ *    SymbolTable::SymbolTable
+ *
+ *  SYNOPSIS
+ *    SymbolTable::SymbolTable();
+ *
+ *  DESCRIPTION
+ *    This function, which is the constructor for the symbol table class,
+ *    initializes the symbol table with a size of 0.
+ * 
+ *  RETURNS
+ *    ((none))
+ */
 
 SymbolTable::SymbolTable() : m_symbol_table_size(0) { }
 /*SymbolTable::SymbolTable();*/
@@ -83,6 +83,7 @@ void SymbolTable::AddSymbol(const string& a_symbol, const int& a_location) {
   auto table_entry = m_symbol_table.find(a_symbol);
 
   // Don't check for undefined symbols. That is done when looking up a symbol.
+  // Here, we only check for multiply defined symbols.
   if (table_entry != m_symbol_table.end() && m_symbol_table_size) {
     table_entry->second = m_MULTIPLY_DEFINED_SYMBOL;
     return;
@@ -120,6 +121,7 @@ void SymbolTable::DisplaySymbolTable() const {
          << table_entry.second << endl;
     entry_number++;
   }
+  system("pause");
 }
 /*void SymbolTable::DisplaySymbolTable() const;*/
 

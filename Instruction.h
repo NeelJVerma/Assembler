@@ -9,8 +9,6 @@
  *  about instructions.
  */
 
-// TODO: FIGURE OUT WHAT ELSE IS NEEDED, THEN IMPLEMENT CLASS METHODS.
-
 #ifndef _INSTRUCTION_H_
 #define _INSTRUCTION_H_
 
@@ -18,14 +16,16 @@
 
 class Instruction {
  public:
-  // Constructor and destructor.
+  // Constructor.
   Instruction();
+
+  // Destructor.
   ~Instruction();
 
   // Codes to indicate the type of instruction we are processing.
   enum InstructionType {
     MACHINE_LANGUAGE = 1, // Machine language instruction.
-    ASSEMBLER_INSTRUCTION, // Assembly language instruction.
+    ASSEMBLY_LANGUAGE, // Assembly language instruction.
     COMMENT, // Comment or blank line.
     END_INSTRUCTION // End instruction.
   };
@@ -59,17 +59,48 @@ class Instruction {
                 // translate.
   };
 
+  const int m_MAX_VALUE = 999999; // Max value for an operand.
+  const int m_MISSING_OPCODE = 99; // Code for a missing opcode. It just has to
+                                   // be something that's not an opcode number.
+                                   // I picked 99 because I wanted to stay
+                                   // consistent with the 9 trend.
+  const string m_UNKNOWN_OPERAND = "????"; // The string code for an unknown
+                                           // operand.
+  const string m_UNKNOWN_OPERATOR = "??"; // The string  code for a missing
+                                          // operator.
+
   // Parse the instruction.
-  InstructionType ParseInstruction(const string& a_buffer);
+  InstructionType ParseInstruction(string& a_buffer);
   
   // Compute the location of the next instruction.
   int LocationNextInstruction(const int& a_location);
 
-  // Access the label.
-  inline string GetLabel() const { return m_label; }
+  // LABEL INFORMATION.
+  // Get the label.
+  inline string& Label() { return m_label; }
 
-  // Determine if a label is blank.
+  // Determine if a label was entered.
   inline bool IsLabel() const { return !m_label.empty(); }
+
+  // OPCODE INFORMATION.
+  // Get the opcode.
+  inline string& OpCode() { return m_op_code; }
+
+  // Get opcode number.
+  inline int OpCodeNum() const { return m_op_code_num; }
+
+  // OPERAND INFORMATION.
+  // Get the operand.
+  inline string& Operand() { return m_operand; }
+
+  // Get the operand value.
+  inline int OperandValue() const { return m_operand_value; }
+
+  // Return true if is numeric operand.
+  inline bool IsNumericOperand() const { return m_is_numeric_operand; }
+
+  // Return true if an operand was entered.
+  inline bool IsOperand() const { return !m_operand.empty(); }
 
  private:
   // The elements of an instruction.
@@ -81,10 +112,58 @@ class Instruction {
   string m_instruction;
 
   // Derived values.
-  int m_number_op_code; // The numerical value of the op code.
+  int m_op_code_num; // The numerical value of the op code.
   InstructionType m_type; // The type of instruction.
-  bool m_is_numeric_operand; // Tell if a operand is numeric.
+  bool m_is_numeric_operand; // Tell if an operand is numeric.
   int m_operand_value; // The value of the operand, if it is numeric.
+
+  // Functions to tell whether an instruction is assembly or machine language.
+  bool IsAssemblyInstruction(const string& a_segment);
+  bool IsMachineInstruction(const string& a_segment);
+
+  // Remove the comment from the instruction.
+  void RemoveComment(string& a_segment);
+
+  // Clearing the members of the class. Used in parsing line by line.
+  void ClearInformation();
+
+  // Check if an operand only contains an integer value.
+  bool IsNumericOperand(const string& a_segment);
+  
+  // Check if the label is valid.
+  bool IsValidLabel(const string& a_segment);
+
+  // Check if proper syntax was used for an assembly or machine language
+  // instruction.
+  void CheckAssemblySyntax();
+  void CheckMachineSyntax();
+
+  // A hash map used to translate the string into an actual machine language
+  // instruction.
+  const unordered_map<string, MachineOpCode> m_machine_code {
+    { "ADD", ADD },
+    { "SUB", SUB },
+    { "MULT", MULT },
+    { "DIV", DIV },
+    { "LOAD", LOAD },
+    { "STORE", STORE },
+    { "READ", READ },
+    { "WRITE", WRITE },
+    { "B", B },
+    { "BM", BM },
+    { "BZ", BZ },
+    { "BP", BP },
+    { "HALT", HALT }
+  };
+
+  // A hash map used to translate the string into an actual assembly language
+  // instruction.
+  const unordered_map<string, AssemblyCode> m_assembly_code {
+    { "ORG", ORG },
+    { "DC", DC },
+    { "DS", DS },
+    { "END", END_PROGRAM }
+  };
 };
 
 #endif

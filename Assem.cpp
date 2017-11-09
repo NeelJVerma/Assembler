@@ -9,26 +9,29 @@
  */
 
 #include "stdafx.h"
-#include "FileAccess.h"
+#include "Assembler.h"
+#include "Errors.h"
+#include "Emulator.h"
 
 int main(int argc, char* argv[]) {
   // TODO: FINISH WHEN CLASS IMPLEMENTATIONS ARE ALL COMPLETE.
-  /*Assembler assem(argc, argv);
+  Assembler assem(argc, argv);
 
   // Establish the location of the labels:
-  assem.PassI();
+  assem.PassOne();
 
   // Display the symbol table.
   assem.DisplaySymbolTable();
-
+  
   // Output the symbol table and the translation.
-  assem.PassII();
+  assem.PassTwo();
 
+  
   // Run the emulator on the VC3600 program that was generated in Pass II.
-  assem.RunProgramInEmulator();
+  assem.RunEmulator();
 
   // Terminate indicating all is well.  If there is an unrecoverable error, the 
-  // program will terminate at the point that it occurred with an exit(1) call.*/
-  system("pause");
+  // program will terminate at the point that it occurred with an exit(1) call.
+
   return 0;
 }

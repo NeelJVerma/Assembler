@@ -101,9 +101,7 @@ FileAccess::~FileAccess() {
 
 bool FileAccess::GetNextLine(string& a_buffer) {
   // Return false if the eofbit is set.
-  if (m_source_file.eof()) {
-    return false;
-  }
+  if (m_source_file.eof()) return false;
 
   // Reads a line from the source file (an ifstream object) into the string
   // called a_buffer. Returns true if this step was reached.

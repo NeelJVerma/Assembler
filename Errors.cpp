@@ -38,8 +38,8 @@ void Errors::InitErrorReporting() {
   m_total_errors = 0;
 
   // If there are no errors, there is no need to clear the vector. Otherwise,
-  // we will clear it.
-  if (!m_total_errors) return;
+  // we will clear it of any previous error messages.
+  if (m_error_messages.empty()) return;
 
   m_error_messages.clear();
 }
@@ -73,30 +73,27 @@ void Errors::RecordError(const string& a_error_message) {
 }
 /*void Errors::RecordError(const string& a_error_message);*/
 
-/** Errors::CreateError()
- *  Errors::CreateError()
+/** Errors::DisplayCurrentError()
+ *  Errors::DisplayCurrentError() 
  *
  *  NAME
- *    Errors::CreateError
+ *    Errors::DisplayCurrentError
  *
  *  SYNOPSIS
- *    string Errors::CreateError(const int& a_location, const string& a_error);
- *
- *    a_location --> location where error was found
- *    a_error --> error message
+ *    void Errors::DisplayCurrentError();
  *
  *  DESCRIPTION
- *    This function creates an instance of an error.
+ *    This function displays the current error. This is only used in the case
+ *    of a fatal error.
  *
  *  RETURNS
- *    Returns the error message. We return it so we can pass it into
- *    void Errors::RecordError.
+ *    ((void))
  */
 
-string Errors::CreateError(const int& a_location, const string& a_error) {
-  return("Error at location " + to_string(a_location) + ": " + a_error);
+void Errors::DisplayCurrentError() {
+  cout << m_error_messages.back() << endl;
 }
-/*string Errors::RecordError(const int& a_location, const string& a_error);*/
+/*void Errors::DisplayCurrentError();*/
 
 /** Errors::DisplayErrors()
  *  Errors::DisplayErrors()

@@ -10,5 +10,5 @@ hay   store   y ; This is the another comment.
 x      dc      5
 y      ds      99
 b      dc      555 
-a      dc      100 
+a      dc      100
         end

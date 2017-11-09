@@ -15,17 +15,18 @@
 
 class Errors {
  public:
-   // Start reporting errors.
-   static void InitErrorReporting();
+  // Start reporting errors.
+  static void InitErrorReporting();
 
-   // Record an error message.
-   static void RecordError(const string& a_error_message);
+  // Record an error message.
+  static void RecordError(const string& a_error_message);
 
-   // Create an instance of an error.
-   static string CreateError(const int& a_location, const string& a_error);
+  // Display the current error. Only used in cases where a fatal error was
+  // recorded.
+  static void DisplayCurrentError();
 
-   // Print all errors.
-   static void DisplayErrors();
+  // Print all errors.
+  static void DisplayErrors();
 
  private:
   static vector<string> m_error_messages; // Storage for the error messages.
