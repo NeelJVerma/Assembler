@@ -22,9 +22,10 @@ class SymbolTable {
   ~SymbolTable();
 
   // Symbolic constants.
-  const int m_MULTIPLY_DEFINED_SYMBOL = -999; // Recognize a multiply defined
-                                              // symbol.
-  const int m_UNDEFINED_SYMBOL = -1000; // Recognize an undefined symbol.
+  const static int m_MULTIPLY_DEFINED_SYMBOL = -999; // Recognize a multiply
+                                                     // defined symbol.
+  const static int m_UNDEFINED_SYMBOL = -1000; // Recognize an undefined
+                                               // symbol.
   
   // Add a new symbol to the symbol table.
   void AddSymbol(const string& a_symbol, const int& a_location);

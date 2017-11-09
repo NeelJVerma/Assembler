@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "Assembler.h"
 #include "Errors.h"
+#include "SymTab.h"
 
 /** Assembler::Assembler()
  *  Assembler::Assembler()
@@ -36,8 +37,22 @@
 Assembler::Assembler(int argc, char* argv[]) : m_file_access(argc, argv) { }
 /*Assembler::Assembler(int argc, char* argv[]);*/
 
-// TODO: Add to the destructor if needed.
-Assembler::~Assembler() { }
+/** Assembler::PassOne()
+ *  Assembler::PassOne()
+ *
+ *  NAME
+ *    Assembler::PassOne
+ *
+ *  SYNOPSIS
+ *    void Assembler::PassOne();
+ *
+ *  DESCRIPTION
+ *    This function goes through the assembly program and collects all symbols
+ *    and their locations, readying them for the symbol table.
+ *
+ *  RETURNS
+ *    ((void))
+ */
 
 void Assembler::PassOne() {
   // Tracks location of the instructions to be generated.
@@ -54,8 +69,8 @@ void Assembler::PassOne() {
     // Parse the instruction and get the instruction type.
     Instruction::InstructionType type = m_instruction.ParseInstruction(buffer);
 
-    // If this is an end statement, there is nothing left to do in pass 1. Pass
-    // two will determine if the end is the last statement.
+    // If this is an end statement, there is nothing left to do in pass one.
+    // Pass two will determine if the end is the last statement.
     if (type == Instruction::END_INSTRUCTION) return;
 
     // Labels can only be on machine language and assembly language type
@@ -73,6 +88,24 @@ void Assembler::PassOne() {
     location = m_instruction.LocationNextInstruction(location);
   }
 }
+/*void Assembler::PassOne();*/
+
+/** Assembler::PassTwo()
+ *  Assembler::PassTwo()
+ *
+ *  NAME
+ *    Assembler::PassTwo
+ *
+ *  SYNOPSIS
+ *    void Assembler::PassTwo();
+ *
+ *  DESCRIPTION
+ *    This function goes through the assembly program and generates a
+ *    translation.
+ *
+ *  RETURNS
+ *    ((void))
+ */
 
 void Assembler::PassTwo() {
   // Start the ability to record errors and clear out any unwanted information
@@ -82,27 +115,38 @@ void Assembler::PassTwo() {
   // Rewind the file so that we can evaluate it from the beginning.
   m_file_access.Rewind();
 
+  // Tracks the location of the instruction being executed.
   int location = 0;
   int operand_location = 0;
   cout << "_________________________________________________" << endl;
   cout << "Translation of program:" << endl;
   cout << "Location\tContents\tOriginal Instruction" << endl;
+
+  // Process each line of source code.
   while (true) {
     string buffer;
+
+    // If there are no more lines to read, it must mean there is no end
+    // statement.
     if (!m_file_access.GetNextLine(buffer)) {
       Errors::RecordError("FATAL ERROR. MISSING END STATEMENT.");
+      Errors::DisplayCurrentError();
       return;
     }
 
+    // Get the type of instruction.
     Instruction::InstructionType type = m_instruction.ParseInstruction(buffer);
-
     if (type == Instruction::END_INSTRUCTION) {
+      // If there is a line after the end statement, report an error.
       if (m_file_access.GetNextLine(buffer)) {
         Errors::RecordError("Statement after END statement.");
         Errors::DisplayCurrentError();
-        return;
       }
+      return;
     }
+
+    // If the type is a comment, meaning it is not end, assembly, or machine,
+    // just print the comment.
     if (type != Instruction::MACHINE_LANGUAGE &&
         type != Instruction::ASSEMBLY_LANGUAGE) {
       PrintTranslation(location, operand_location, m_instruction.OpCodeNum(),
@@ -111,10 +155,11 @@ void Assembler::PassTwo() {
     }
     operand_location = 0;
 
+    // Checking for an alphanumeric operand in the symbol table.
     if (m_instruction.IsOperand() && !m_instruction.IsNumericOperand() &&
         !m_symbol_table.LookupSymbol(m_instruction.Operand(),
                                      operand_location)) {
-      if (operand_location == m_symbol_table.m_MULTIPLY_DEFINED_SYMBOL) {
+      if (operand_location == SymbolTable::m_MULTIPLY_DEFINED_SYMBOL) {
         Errors::RecordError("Symbol " + m_instruction.Operand() +
                             " is multiply defined.");
         Errors::DisplayCurrentError();
@@ -127,35 +172,72 @@ void Assembler::PassTwo() {
       }
     }
 
-    PrintTranslation(location, operand_location, m_instruction.OpCodeNum(),
-                     buffer, type);
-
+    // If the location is out of memory, report the error.
     if (location > Emulator::m_MEMORY_SIZE) {
       Errors::RecordError("Location " + to_string(location) +
                           " is out of memory.");
       Errors::DisplayCurrentError();
+      return;
     }
+
+    // Now that we're done handling all the necessary errors, we can print the
+    // translation.
+    PrintTranslation(location, operand_location, m_instruction.OpCodeNum(),
+                     buffer, type);
+
+    // Get the location of the next instruction.
     location = m_instruction.LocationNextInstruction(location);
   }
-  system("pause");
 }
+/*void Assembler::PassTwo();*/
 
-void Assembler::PrintTranslation(const int & a_instruction_location,
-                                 const int & a_operand_location,
-                                 const int & a_op_code_number,
-                                 const string & a_instruction,
-                                 const Instruction::InstructionType & a_type) {
+/** Assembler::PrintTranslation()
+ *  Assembler::PrintTranslation()
+ *
+ *  NAME
+ *    Assembler::PrintTranslation
+ *
+ *  SYNOPSIS
+ *    void Assembler::PrintTranslation(const int& a_instruction_location,
+ *                                     const int& a_operand_location,
+ *                                     const int& a_op_code_number,
+ *                                     const string& a_instruction,
+ *                                     const Instruction::InstructionType& a_type);
+ *
+ *    a_instruction_location --> the location of the instruction
+ *    a_operand_location --> the location of the operand
+ *    a_op_code_number --> the numeric value of the op code
+ *    a_instruction --> the actual instruction
+ *    a_type --> the symbolic name for the type of instruction
+ *
+ *  DESCRIPTION
+ *    This function prints a single line of the translated instruction. It is
+ *    used in pass two when we are translating every line.
+ *
+ *   RETURNS
+ *    ((void))
+ */
+
+void Assembler::PrintTranslation(const int& a_instruction_location,
+                                 const int& a_operand_location,
+                                 const int& a_op_code_number,
+                                 const string& a_instruction,
+                                 const Instruction::InstructionType& a_type) {
   string contents = "";
   InstructionInformation instruction_information;
   stringstream ss;
   int location = a_operand_location;
 
+  // If the type of instruction is a comment or an end instruction, we can just
+  // print out the instruction. There is nothing else we have to do.
   if (a_type == Instruction::COMMENT ||
       a_type == Instruction::END_INSTRUCTION) {
     cout << "\t\t\t" << a_instruction << endl;
     return;
   }
 
+  // Handle specifically if the instruction is assembly, since we have to
+  // handle these differently.
   if (a_type == Instruction::ASSEMBLY_LANGUAGE) {
     if (m_instruction.OpCodeNum() == Instruction::ORG ||
         m_instruction.OpCodeNum() == Instruction::DC) {
@@ -173,20 +255,44 @@ void Assembler::PrintTranslation(const int & a_instruction_location,
     }
     location = m_instruction.OperandValue();
   }
+
+  // Handle if the instruction is either assembly or machine.
   ss.str(string());
   ss << setfill('0') << setw(2) << a_op_code_number << setw(4) << location;
   contents = ss.str();
-
   instruction_information.s_contents = stoi(contents);
   instruction_information.s_location = a_instruction_location;
   cout << "  " << a_instruction_location << "\t\t" << contents
        << "\t\t" << a_instruction << endl;
   m_instruction_information.push_back(instruction_information);
 }
+/*void Assembler::PrintTranslation(const int& a_instruction_location,
+                                   const int& a_operand_location,
+                                   const int& a_op_code_number,
+                                   const string& a_instruction,
+                                   const Instruction::InstructionType& a_type);*/
+
+/** Assembler::RunEmulator()
+ *  Assembler::RunEmulator()
+ *
+ *  NAME
+ *    Assembler::RunEmulator
+ *
+ *  SYNOPSIS
+ *    void Assembler::RunEmulator();
+ *
+ *  DESCRIPTION
+ *    This function runs the emulator.
+ *
+ *  RETURNS
+ *    ((void))
+ */
 
 void Assembler::RunEmulator() {
   for (auto it = m_instruction_information.begin();
        it != m_instruction_information.end(); it++) {
+    // If memory is available to insert, insert it. Otherwise, we have run out
+    // of memory and we have to report a fatal error.
     if (m_emulator.InsertMemory(it->s_location, it->s_contents)) continue;
     else {
       Errors::RecordError("FATAL ERROR. OUT OF MEMORY.");
@@ -195,7 +301,10 @@ void Assembler::RunEmulator() {
       exit(1);
     }
   }
+  cout << "Results from emulating program:" << endl;
 
+  // If the emulation is successful, print it. Otherwise, we have to report a
+  // fatal error.
   if (m_emulator.RunProgram()) cout << "Emulation successful." << endl;
   else {
     Errors::RecordError("FATAL ERROR. UNABLE TO COMPLETE EMULATION.");
@@ -203,5 +312,5 @@ void Assembler::RunEmulator() {
     system("pause");
     exit(1);
   }
-  system("pause");
 }
+/*void Assembler::RunEmulator();*/

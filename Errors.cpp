@@ -12,7 +12,8 @@
 #include "stdafx.h"
 #include "Errors.h"
 
-// Initialize the static member variables.
+// Initialize the static member variables. We have to do this because Errors
+// will not be instanced. This is put in place of the constructor.
 int Errors::m_total_errors;
 vector<string> Errors::m_error_messages;
 

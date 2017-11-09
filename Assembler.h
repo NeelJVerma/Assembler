@@ -5,8 +5,8 @@
  *  Current File: Assembler.h
  *
  *
- *  Assembler.h: Container for the whole assembler. Will go through pass 1,
- *  pass 2, and run the emulator.
+ *  Assembler.h: Container for the whole assembler. Will go through pass one,
+ *  pass two, and run the emulator.
  */
 
 #ifndef _ASSEMBLER_H_
@@ -23,9 +23,6 @@ class Assembler {
  public:
   // Constructor.
   Assembler(int argc, char* argv[]);
-
-  // Destructor.
-  ~Assembler();
 
   // Pass one. Establish location of the symbols.
   void PassOne();
@@ -51,9 +48,10 @@ class Assembler {
     int s_contents; // Instruction's contents.
   };
   vector<InstructionInformation> m_instruction_information; // A vector that
-                                                           // holds the
-                                                           // information of
-                                                           // each instruction.
+                                                            // holds the
+                                                            // information of
+                                                            // individual
+                                                            // instructions.
 
   // A function to print each line of the emulated code.
   void PrintTranslation(const int& a_instruction_location,

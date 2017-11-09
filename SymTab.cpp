@@ -121,7 +121,6 @@ void SymbolTable::DisplaySymbolTable() const {
          << table_entry.second << endl;
     entry_number++;
   }
-  system("pause");
 }
 /*void SymbolTable::DisplaySymbolTable() const;*/
 
