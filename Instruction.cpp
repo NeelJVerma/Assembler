@@ -144,8 +144,9 @@ void Instruction::RemoveComment(string& a_segment) {
 
 bool Instruction::IsValidLabel(const string& a_segment) {
   // If the label is an empty string, it is considered valid.
-  if (a_segment.empty()) return true;
-
+  if (a_segment.empty()) {
+    return true;
+  }
   bool is_valid = true;
 
   // If first character isn't a letter, it is not valid.
@@ -238,8 +239,11 @@ bool Instruction::IsAssemblyInstruction(const string& a_segment) {
 
     // If the instruction is to end the program, we set the type of instruction
     // to end.
-    if (it->second == END_PROGRAM) m_type = END_INSTRUCTION;
-    else m_type = ASSEMBLY_LANGUAGE;
+    if (it->second == END_PROGRAM) {
+      m_type = END_INSTRUCTION;
+    } else {
+      m_type = ASSEMBLY_LANGUAGE;
+    }
     return true;
   }
   return false;
@@ -276,7 +280,9 @@ Instruction::ParseInstruction(string& a_buffer) {
 
   // If there an empty line, return it as a comment. Additionally, if the first
   // character is a ';', the whole line is a comment.
-  if (a_buffer.empty() || a_buffer.find_first_of(';') == 0) return m_type;
+  if (a_buffer.empty() || a_buffer.find_first_of(';') == 0) {
+    return m_type;
+  }
 
   m_instruction = a_buffer;
   string temp_buffer = a_buffer;
@@ -285,21 +291,22 @@ Instruction::ParseInstruction(string& a_buffer) {
   // have to preserve the original instruction.
   RemoveComment(temp_buffer);
 
-  istringstream iss(temp_buffer);
-  vector<string> instruction_parts;
-
   // Read each segment into a string stream and put it into a vector of the
   // three separate parts of an instruction: label, opcode, operand.
+
+  istringstream iss(temp_buffer);
+  vector<string> instruction_parts;
   while (iss >> temp_buffer) {
     // Still have to check for emptiness.
-    if (!temp_buffer.empty()) instruction_parts.push_back(temp_buffer);
+    if (!temp_buffer.empty()) {
+      instruction_parts.push_back(temp_buffer);
+    }
   }
 
   // VC3600 can only hold 3 parts of an instruction.
   if (instruction_parts.size() > 3) {
     Errors::RecordError("Too many arguments. VC3600 only allows 3.");
   }
-
   bool is_assembly = false; 
   bool is_machine = false;
   bool label_validation = false;
@@ -347,23 +354,29 @@ Instruction::ParseInstruction(string& a_buffer) {
       if (!m_is_numeric_operand) {
         Errors::RecordError("Invalid use of non-numeric operand " + m_operand +
                             " on assembly language instruction.");
+      } else {
+        m_operand_value = stoi(instruction_parts[column]);
       }
-      else m_operand_value = stoi(instruction_parts[column]);
       continue;
     }
 
     // Verifying if an instruction is machine or assembly.
     is_machine = IsMachineInstruction(temp_part);
     is_assembly = IsAssemblyInstruction(temp_part);
-
-    if (is_machine) continue;
-    if (is_assembly) continue;
+    if (is_machine) {
+      continue;
+    }
+    if (is_assembly) {
+      continue;
+    }
   }
 
   // Check if machine/assembly syntax is correct.
-  if (is_machine) CheckMachineSyntax();
-  else if (is_assembly) CheckAssemblySyntax();
-  else {
+  if (is_machine) {
+    CheckMachineSyntax();
+  } else if (is_assembly) {
+    CheckAssemblySyntax();
+  } else {
     Errors::RecordError("Invalid syntax. No instruction found.");
     m_op_code = m_MISSING_OPCODE;
     m_operand = m_UNKNOWN_OPERAND;
@@ -398,9 +411,13 @@ int Instruction::LocationNextInstruction(const int & a_location) {
   // location + 1.
   if (m_type == ASSEMBLY_LANGUAGE && IsOperand()) {
     if (m_assembly_code.at(m_op_code) == ORG) {
-      if (m_is_numeric_operand) return m_operand_value;
+      if (m_is_numeric_operand) {
+        return m_operand_value;
+      }
     } else if (m_assembly_code.at(m_op_code) == DS) {
-      if (m_is_numeric_operand) return a_location + m_operand_value;
+      if (m_is_numeric_operand) {
+        return a_location + m_operand_value;
+      }
     }
   }
   return a_location + 1;

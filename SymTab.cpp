@@ -113,9 +113,7 @@ void SymbolTable::AddSymbol(const string& a_symbol, const int& a_location) {
 
 void SymbolTable::DisplaySymbolTable() const {
   int entry_number = 0;
-
   cout << "Symbol #" << setw(13) << "Symbol" << setw(15) << "Location" << endl;
-
   for (auto table_entry : m_symbol_table) {
     cout << entry_number << setw(17) << table_entry.first << setw(14)
          << table_entry.second << endl;

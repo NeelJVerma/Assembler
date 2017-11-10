@@ -40,7 +40,9 @@ void Errors::InitErrorReporting() {
 
   // If there are no errors, there is no need to clear the vector. Otherwise,
   // we will clear it of any previous error messages.
-  if (m_error_messages.empty()) return;
+  if (m_error_messages.empty()) {
+    return;
+  }
 
   m_error_messages.clear();
 }
@@ -67,8 +69,9 @@ void Errors::InitErrorReporting() {
 
 void Errors::RecordError(const string& a_error_message) {
   // If no error message was found, don't record anything.
-  if (a_error_message.empty()) return;
-
+  if (a_error_message.empty()) {
+    return;
+  }
   m_error_messages.push_back(a_error_message);
   m_total_errors++;
 }
@@ -123,7 +126,6 @@ void Errors::DisplayErrors() {
   // Print the error messages.
   cout << m_total_errors
        << (m_total_errors == 1 ? " ERROR REPORT:" : " ERROR REPORTS:") << endl;
-
   for (auto error : m_error_messages) {
     cout << error << endl;
   }

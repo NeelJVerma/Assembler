@@ -367,9 +367,13 @@ void Emulator::Read(const int& a_location) {
       if (isdigit(*it)) {
         is_alpha = false;
         continue;
-      } else if (*it == '-' && it == input.begin()) continue;
+      } else if (*it == '-' && it == input.begin()) {
+        continue;
+      }
     }
-    if (is_alpha) cout << "Input must be an integer." << endl;
+    if (is_alpha) {
+      cout << "Input must be an integer." << endl;
+    }
   }
   m_memory[a_location] = stoi(input);
 }

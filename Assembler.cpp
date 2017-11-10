@@ -64,19 +64,25 @@ void Assembler::PassOne() {
 
     // If there are no more lines, an end statement is missing. This error
     // will be reported in pass 2.
-    if (!m_file_access.GetNextLine(buffer)) return;
+    if (!m_file_access.GetNextLine(buffer)) {
+      return;
+    }
 
     // Parse the instruction and get the instruction type.
     Instruction::InstructionType type = m_instruction.ParseInstruction(buffer);
 
     // If this is an end statement, there is nothing left to do in pass one.
     // Pass two will determine if the end is the last statement.
-    if (type == Instruction::END_INSTRUCTION) return;
+    if (type == Instruction::END_INSTRUCTION) {
+      return;
+    }
 
     // Labels can only be on machine language and assembly language type
     // instruction. Skip all other types.
     if (type != Instruction::MACHINE_LANGUAGE &&
-        type != Instruction::ASSEMBLY_LANGUAGE) continue;
+        type != Instruction::ASSEMBLY_LANGUAGE) {
+      continue;
+    }
 
     // If the instruction has a label, record the label and its location in the
     // symbol table.
@@ -293,8 +299,9 @@ void Assembler::RunEmulator() {
        it != m_instruction_information.end(); it++) {
     // If memory is available to insert, insert it. Otherwise, we have run out
     // of memory and we have to report a fatal error.
-    if (m_emulator.InsertMemory(it->s_location, it->s_contents)) continue;
-    else {
+    if (m_emulator.InsertMemory(it->s_location, it->s_contents)) {
+      continue;
+    } else {
       Errors::RecordError("FATAL ERROR. OUT OF MEMORY.");
       Errors::DisplayCurrentError();
       system("pause");
@@ -305,8 +312,9 @@ void Assembler::RunEmulator() {
 
   // If the emulation is successful, print it. Otherwise, we have to report a
   // fatal error.
-  if (m_emulator.RunProgram()) cout << "Emulation successful." << endl;
-  else {
+  if (m_emulator.RunProgram()) {
+    cout << "Emulation successful." << endl;
+  } else {
     Errors::RecordError("FATAL ERROR. UNABLE TO COMPLETE EMULATION.");
     Errors::DisplayCurrentError();
     system("pause");
